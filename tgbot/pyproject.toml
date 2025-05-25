@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "tgbot"
+version = "0.1.0"
+description = "Telegram bot with text processing API"
+authors = ["Kaban17 <kaban1628@gmail.com>"]
+packages = [{include = "tgbot"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+python-telegram-bot = "^21.0"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+aiohttp = "^3.9.1"
+python-multipart = "^0.0.6"
+nltk = "^3.8.1"
+pysrt = "^1.1.2"
+pydantic = "^2.6.0"
+asyncio = "^3.4.3"
+aiofiles = "^24.1.0"
+googletrans = "^4.0.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
