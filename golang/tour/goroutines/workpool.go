@@ -107,29 +107,23 @@ func main() {
 	pool := NewWorkerPool()
 	go pool.Run()
 
-	// Добавляем начальных воркеров
 	pool.AddWorker()
 	pool.AddWorker()
 
-	// Отправляем задачи
 	for i := 0; i < 5; i++ {
 		pool.SubmitTask(fmt.Sprintf("task_%d", i))
 	}
 
-	// Добавляем еще воркера через 1 секунду
 	time.Sleep(time.Second)
 	pool.AddWorker()
 
-	// Удаляем первого воркера через 2 секунды
 	time.Sleep(time.Second)
 	pool.RemoveWorker(0)
 
-	// Отправляем еще задач
 	for i := 5; i < 10; i++ {
 		pool.SubmitTask(fmt.Sprintf("task_%d", i))
 	}
 
-	// Даем время на обработку
 	time.Sleep(2 * time.Second)
 	pool.Stop()
 }
