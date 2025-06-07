@@ -28,46 +28,45 @@ func main() {
 	}
 	defer conn.Close()
 
-	// Start reader goroutine
-	go func() {
-		reader := bufio.NewReader(conn)
-		for {
-			message, err := reader.ReadString('\n')
-			if err != nil {
-				log.Println("Read error:", err)
-				return
-			}
-			fmt.Printf("[Server] %s", message)
-		}
-	}()
-
-	// Start writer
-	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Enter messages to send (or 'exit' to quit):")
-	for scanner.Scan() {
-		text := scanner.Text()
-		if text == "exit" {
-			return
-		}
-
-		// Create proper JSON message
-		id, _ := strconv.Atoi(clientID)
-		msg := Message{
-			ID:      id,
-			Name:    "Client-" + clientID,
-			Content: text,
-		}
-
-		jsonData, err := json.Marshal(msg)
-		if err != nil {
-			log.Println("JSON marshal error:", err)
-			continue
-		}
-
-		// Send with newline delimiter
-		if _, err := fmt.Fprintf(conn, "%s\n", jsonData); err != nil {
-			log.Println("Send error:", err)
-			return
-		}
+	// Получаем ID клиента
+	id, err := strconv.Atoi(clientID)
+	if err != nil {
+		log.Fatal("Invalid client ID:", err)
 	}
+
+	// Читаем сообщение от пользователя
+	fmt.Print("Enter your message: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	messageText := scanner.Text()
+
+	// Формируем сообщение
+	msg := Message{
+		ID:      id,
+		Name:    "Client-" + clientID,
+		Content: messageText,
+	}
+
+	// Кодируем в JSON
+	jsonData, err := json.Marshal(msg)
+	if err != nil {
+		log.Fatal("JSON marshal error:", err)
+	}
+
+	// Отправляем сообщение
+	_, err = conn.Write(append(jsonData, '\n'))
+	if err != nil {
+		log.Fatal("Send error:", err)
+	}
+
+	// Читаем ответ
+	reader := bufio.NewReader(conn)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal("Read error:", err)
+	}
+
+	fmt.Printf("\nServer response: %s", response)
+
+	// Соединение закроется автоматически через defer
 }

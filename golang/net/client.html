@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Client</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .status {
+                padding: 10px;
+                margin: 10px 0;
+            }
+            input,
+            button {
+                margin: 5px;
+                padding: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Client <span id="clientId"></span></h2>
+            <div id="status" class="status">Connecting to server...</div>
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Type your message"
+            />
+            <button onclick="sendMessage()">Send Message</button>
+
+            <h3>Responses:</h3>
+            <div id="responses"></div>
+        </div>
+
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const clientId = parseInt(params.get("clientId")) || 1;
+            let ws;
+
+            function initWebSocket() {
+                document.getElementById("clientId").textContent = clientId;
+
+                ws = new WebSocket("ws://localhost:8080/ws");
+
+                ws.onopen = () => {
+                    document.getElementById("status").textContent =
+                        "Connected to server";
+                    sendSystemMessage("Connection established");
+                };
+
+                ws.onmessage = (event) => {
+                    addResponse(event.data);
+                };
+
+                ws.onerror = (error) => {
+                    document.getElementById("status").textContent =
+                        `Error: ${error.message}`;
+                };
+
+                ws.onclose = () => {
+                    document.getElementById("status").textContent =
+                        "Connection closed";
+                };
+            }
+
+            function sendSystemMessage(text) {
+                const msg = {
+                    id: clientId,
+                    name: `Client-${clientId}`,
+                    content: text,
+                    type: "system",
+                };
+                ws.send(JSON.stringify(msg));
+            }
+
+            function sendMessage() {
+                const input = document.getElementById("messageInput");
+                const message = input.value.trim();
+
+                if (!message) return;
+
+                const msg = {
+                    id: clientId,
+                    name: `Client-${clientId}, Kondratev`,
+                    content: message,
+                    type: "user",
+                };
+
+                ws.send(JSON.stringify(msg));
+                input.value = "";
+            }
+
+            function addResponse(text) {
+                const div = document.createElement("div");
+                div.textContent = `[Server] ${text}`;
+                div.style.padding = "5px";
+                div.style.borderBottom = "1px solid #eee";
+                document.getElementById("responses").appendChild(div);
+            }
+
+            // Initialize connection when page loads
+            initWebSocket();
+        </script>
+    </body>
+</html>

@@ -118,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         id: customerId,
         name: `Customer ${customerId}`,
         message: message,
+        family: "Kondratev",
       });
     });
 

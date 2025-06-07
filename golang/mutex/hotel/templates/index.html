@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Семейный отель в Эфиопии</title>
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Семейный отель в Эфиопии</h1>
+
+            <button onclick="addClient()">Добавить клиента</button>
+
+            <div id="stats">
+                <p>Загрузка статистики...</p>
+            </div>
+        </div>
+
+        <script>
+            function addClient() {
+                fetch("/checkin", { method: "POST" }).then(() => updateStats());
+            }
+
+            function updateStats() {
+                fetch("/stats")
+                    .then((res) => res.json())
+                    .then((data) => {
+                        document.getElementById("stats").innerHTML = `
+            <h3>Статистика:</h3>
+            <ul>
+              <li>Всего клиентов: ${data.Total}</li>
+              <li>Заселено: ${data.Served}</li>
+              <li>Не смогли заселиться: ${data.Pending}</li>
+              <li>Доход отеля: ${data.Income} эфиопских быров</li>
+              <li>Номера:
+                <ul>
+                  <li>500 быров: ${data.Rooms[500]}</li>
+                  <li>700 быров: ${data.Rooms[700]}</li>
+                  <li>900 быров: ${data.Rooms[900]}</li>
+                </ul>
+              </li>
+            </ul>
+          `;
+                    });
+            }
+
+            setInterval(updateStats, 2000); // автообновление каждые 2 секунды
+            updateStats();
+        </script>
+    </body>
+</html>

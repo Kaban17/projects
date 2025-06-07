@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Client Launcher</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 100px;
+            }
+            .container {
+                max-width: 100px;
+                margin: 0 auto;
+            }
+            input,
+            button {
+                padding: 10px;
+                margin: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Client Manager</h1>
+            <input
+                type="number"
+                id="clientCount"
+                placeholder="Number of clients"
+                min="1"
+            />
+            <button onclick="launchClients()">Start Clients</button>
+
+            <button onclick="Surname()">Surname</button>
+        </div>
+
+        <script>
+            function launchClients() {
+                const count = document.getElementById("clientCount").value;
+                if (!count || count < 1) return;
+
+                for (let i = 1; i <= count; i++) {
+                    const url = `/client.html?clientId=${i}`;
+                    window.open(url, `client-${i}`);
+                }
+            }
+            function Surname() {}
+        </script>
+    </body>
+</html>

@@ -1,85 +1,88 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
-	"fmt"
 	"log"
-	"net"
-	"strings"
+	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
-type Message struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Content string `json:"content"`
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
+func CountCharacters(str string) map[string]int {
+	// Step 1: Create a map to store character counts
+	counts := make(map[string]int)
+
+	// Step 2: Iterate over each character in the string
+	for _, char := range str {
+		// Step 3: Increment the count for the current character
+		counts[string(char)]++
+	}
+
+	return counts
+}
 func main() {
-	ln, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ln.Close()
-	fmt.Println("TCP server listening on port 8080")
+	http.HandleFunc("/ws", handleWebSocket)
+	http.HandleFunc("/", serveHome)
+	http.HandleFunc("/client.html", serveClient)
 
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Println("Accept error:", err)
-			continue
-		}
-		go handleConnection(conn)
-	}
+	log.Println("Server started on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func handleConnection(conn net.Conn) {
+func serveHome(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "index.html")
+}
+
+func serveClient(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "client.html")
+}
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("WebSocket upgrade error:", err)
+		return
+	}
 	defer conn.Close()
-	reader := bufio.NewReader(conn)
 
 	for {
-		// Read until newline
-		message, err := reader.ReadString('\n')
-		if err != nil {
+		// Читаем сообщение как JSON объект
+		var msg map[string]interface{}
+		if err := conn.ReadJSON(&msg); err != nil {
 			log.Println("Read error:", err)
 			return
 		}
 
-		// Trim and check for empty message
-		message = strings.TrimSpace(message)
-		if message == "" {
+		// Валидация полей
+		id, ok := msg["id"].(float64)
+		if !ok {
+			log.Println("Invalid ID format")
 			continue
 		}
 
-		// Parse JSON
-		var msg Message
-		if err := json.Unmarshal([]byte(message), &msg); err != nil {
-			log.Printf("JSON parse error: %v | Raw: %s\n", err, message)
-			sendResponse(conn, "ERROR: Invalid JSON format")
+		content, ok := msg["content"].(string)
+		if !ok {
+			log.Println("Invalid content format")
 			continue
 		}
-
-		log.Printf("Received: %+v\n", msg)
-
-		// Process and respond
-		response := Message{
-			ID:      msg.ID,
-			Name:    fmt.Sprintf("Customer-%d", msg.ID),
-			Content: fmt.Sprintf("Processed: %s", msg.Content),
+		ans := CountCharacters(content)
+		// Формируем ответ
+		response := map[string]interface{}{
+			"status":   "success",
+			"clientId": int(id),
+			"count":    ans,
 		}
 
-		if err := sendResponse(conn, response); err != nil {
-			log.Println("Send error:", err)
+		// Отправляем ответ
+		if err := conn.WriteJSON(response); err != nil {
+			log.Println("Write error:", err)
 			return
 		}
 	}
-}
-
-func sendResponse(conn net.Conn, data interface{}) error {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(conn, "%s\n", jsonData)
-	return err
 }
