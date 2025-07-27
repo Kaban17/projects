@@ -1,83 +1,64 @@
-# Cубтитры с переводом
+# SRT Subtitle Processor API
 
-Этот проект представляет собой комплексное решение для обработки `.srt` файлов субтитров, включающее в себя:
--   **API на FastAPI** для обработки файлов.
--   **Telegram-бот** в качестве удобного фронтенда.
+This project is a FastAPI-based API for processing `.srt` subtitle files.
 
-## Функционал
+## Features
 
--   **Прием `.srt` файлов**: Через API напрямую или через Telegram-бота.
--   **Анализ текста**: Извлечение всех уникальных слов.
--   **Перевод**: Перевод слов на русский язык.
--   **Генерация нового файла**: Создание нового `.srt` файла, где к каждой реплике добавлены переводы слов.
--   **Статистика**: Подсчет топ-100 самых частых слов, общего и уникального количества слов.
+-   **Accepts `.srt` files**: Upload `.srt` files via an API endpoint.
+-   **Text Analysis**: Extracts all unique words from the subtitles.
+-   **Translation**: Translates the unique words to Russian.
+-   **New File Generation**: Creates a new `.srt` file with word translations appended to each subtitle line.
+-   **Statistics**: Calculates the top 100 most frequent words, total word count, and unique word count.
 
-## Установка
+## Installation
 
-1.  **Клонируйте репозиторий:**
+1.  **Clone the repository:**
     ```bash
     git clone <repository_url>
     cd tgbot
     ```
 
-2.  **Создайте и настройте `.env` файл:**
-    Скопируйте `.env.example` в `.env` и впишите ваши ключи:
-    ```
-    GEMINI_API_KEY=...
-    TG_API_KEY=...
-    ```
-    `TG_API_KEY` - это токен вашего Telegram-бота, полученный от [@BotFather](https://t.me/BotFather).
-
-3.  **Установите зависимости с помощью Poetry:**
+2.  **Install dependencies using Poetry:**
     ```bash
     poetry install
     ```
 
-4.  **Активируйте виртуальное окружение:**
+3.  **Activate the virtual environment:**
     ```bash
     poetry shell
     ```
 
-## Запуск
+## Running the Application
 
-Для запуска сервера и Telegram-бота одновременно выполните команду:
+To start the API server, run the following command:
 ```bash
-python main.py
+python3 main.py
 ```
-Будут запущены:
--   **API сервер**: `http://localhost:8000`
--   **Telegram бот**: начнет принимать сообщения.
+The API server will be available at `http://localhost:8000`.
 
-## Использование
+## API Usage
 
-### Через Telegram-бота (рекомендуемый способ)
+You can interact with the API through the documentation available at `http://localhost:8000/docs` or using tools like `curl`.
 
-1.  Найдите вашего бота в Telegram.
-2.  Отправьте ему команду `/start`.
-3.  Отправьте боту `.srt` файл как документ.
-4.  В ответ вы получите сообщение со статистикой и обработанный файл с переводами.
+### Processing a file
 
-### Напрямую через API
+Send a `POST` request to the `/process-srt/` endpoint with your `.srt` file attached.
 
-Вы можете взаимодействовать с API через документацию, доступную по адресу `http://localhost:8000/docs`, или с помощью инструментов вроде `curl`.
-
-#### Отправка файла на обработку
-
-Отправьте `POST` запрос на эндпоинт `/process-srt/`, прикрепив ваш `.srt` файл.
-
-**Пример с `curl`:**
+**Example with `curl`:**
 ```bash
 curl -X POST -F "file=@/path/to/your/file.srt" http://localhost:8000/process-srt/
 ```
 
-#### Ответ
+### Response
 
-В случае успеха вы получите JSON-ответ, содержащий статистику и ссылку для скачивания:
+On success, you will receive a JSON response containing statistics and a download link:
 
 ```json
 {
   "message": "File processed successfully.",
   "statistics": { ... },
-  "download_url": "/downloads/translated_file.srt"
+  "download_url": "/downloads/translated_your_file.srt"
 }
 ```
+
+You can download the processed file from the provided `download_url`.
