@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+/processed_files/
+/bot_temp_files/
+/venv/
+.ropeproject/
+.env

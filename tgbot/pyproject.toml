@@ -1,13 +1,12 @@
 [tool.poetry]
+package-mode = false
 name = "tgbot"
 version = "0.1.0"
 description = "Telegram bot with text processing API"
 authors = ["Kaban17 <kaban1628@gmail.com>"]
-packages = [{include = "tgbot"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-python-telegram-bot = "^21.0"
 fastapi = "^0.109.0"
 uvicorn = "^0.27.0"
 aiohttp = "^3.9.1"
@@ -18,6 +17,7 @@ pydantic = "^2.6.0"
 asyncio = "^3.4.3"
 aiofiles = "^24.1.0"
 googletrans = "^4.0.2"
+dotenv = "^0.9.9"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
