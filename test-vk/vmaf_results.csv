@@ -1,0 +1,7 @@
+filename,bitrate_kbps,vmaf_score
+bunny_1080p.mp4,3014,96.004767
+bunny_144p.mp4,91,5.800690
+bunny_240p.mp4,266,43.283576
+bunny_360p.mp4,563,66.198516
+bunny_480p.mp4,617,71.556169
+bunny_720p.mp4,1481,89.634591

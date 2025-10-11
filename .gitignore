@@ -1,2 +1,3 @@
 nodeapp/*
 tgbot/bot_messages.log
+*.json
