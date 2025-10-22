@@ -53,8 +53,8 @@ Find **2** numbers whose SHA-256 hash ends in **3** zeros, using **4** threads:
 The output will be in the format `NUMBER, "HASH"`. The order of the output is not guaranteed due to parallel processing.
 
 ```
-4163, "d4b53216c8022a36140b69a93098000"
-11848, "409f9f6b94156620021c94c7308e2000"
+4163, "95d4362bd3cd4315d0bbe38dfa5d7fb8f0aed5f1a31d98d510907279194e3000"
+11848, "cb58074fd7620cd0ff471922fd9df8812f29f302904b15e389fc14570a66f000"
 ```
 
 ## Testing
