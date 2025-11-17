@@ -1,0 +1,17 @@
+# Бинарные файлы и сборки
+*.class
+*.jar
+*.war
+*.ear
+*.apk
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# SBT
+target/
+.project
+.scala_dependencies
+.worksheet

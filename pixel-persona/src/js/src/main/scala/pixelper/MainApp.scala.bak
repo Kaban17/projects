@@ -1,0 +1,134 @@
+package pixelper
+
+import tyrian.*
+import tyrian.Html.*
+import tyrian.SVG.*
+import tyrian.cmds.Logger
+
+import scala.util.Random
+import pixelper.{Style, Symmetry, Theme, AvatarConfig, AsciiConfig, AvatarGenerator, AsciiArtGenerator}
+
+enum Msg:
+  case NameChanged(name: String)
+  case StyleChanged(style: String)
+  case SymmetryChanged(symmetry: String)
+  case ThemeChanged(theme: String)
+  case GenerateAvatar
+  case NoOp
+
+case class Model(
+    name: String = "Pixel",
+    style: String = "Monster",
+    symmetry: String = "Vertical",
+    theme: String = "Retro",
+    avatarSvg: String = "",
+    asciiArt: String = "",
+    avatarConfig: AvatarConfig = AvatarConfig("Pixel", Style.Monster, Symmetry.Vertical),
+    asciiConfig: AsciiConfig = AsciiConfig(Theme.Retro)
+)
+
+object MainApp extends TyrianApp[Msg, Model]:
+
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+    val initialModel = Model()
+    val initialAvatar = AvatarGenerator.generateAvatar(initialModel.avatarConfig)
+    val initialAscii = AsciiArtGenerator.generateAsciiArt(Array.fill(32, 32)(0.5), initialModel.asciiConfig)
+    (initialModel.copy(avatarSvg = initialAvatar, asciiArt = initialAscii), Cmd.None)
+
+  def update(model: Model, msg: Msg): (Model, Cmd[Msg]) =
+    msg match
+      case Msg.NameChanged(name) =>
+        val style = Style.fromString(model.style).getOrElse(Style.Monster)
+        val symmetry = Symmetry.fromString(model.symmetry).getOrElse(Symmetry.Vertical)
+        val newConfig = AvatarConfig(name, style, symmetry)
+        val newAvatar = AvatarGenerator.generateAvatar(newConfig)
+        (model.copy(name = name, avatarConfig = newConfig, avatarSvg = newAvatar), Cmd.None)
+
+      case Msg.StyleChanged(styleStr) =>
+        val style = Style.fromString(styleStr).getOrElse(Style.Monster)
+        val symmetry = Symmetry.fromString(model.symmetry).getOrElse(Symmetry.Vertical)
+        val newConfig = AvatarConfig(model.name, style, symmetry)
+        val newAvatar = AvatarGenerator.generateAvatar(newConfig)
+        (model.copy(style = styleStr, avatarConfig = newConfig, avatarSvg = newAvatar), Cmd.None)
+
+      case Msg.SymmetryChanged(symmetryStr) =>
+        val style = Style.fromString(model.style).getOrElse(Style.Monster)
+        val symmetry = Symmetry.fromString(symmetryStr).getOrElse(Symmetry.Vertical)
+        val newConfig = AvatarConfig(model.name, style, symmetry)
+        val newAvatar = AvatarGenerator.generateAvatar(newConfig)
+        (model.copy(symmetry = symmetryStr, avatarConfig = newConfig, avatarSvg = newAvatar), Cmd.None)
+
+      case Msg.ThemeChanged(themeStr) =>
+        val theme = Theme.fromString(themeStr).getOrElse(Theme.Retro)
+        // Генерируем новый ASCII-арт с новой темой
+        val dummyData = Array.fill(32, 32)(Random.nextDouble())
+        val newConfig = AsciiConfig(theme)
+        val newAscii = AsciiArtGenerator.generateAsciiArt(dummyData, newConfig)
+        (model.copy(theme = themeStr, asciiConfig = newConfig, asciiArt = newAscii), Cmd.None)
+
+      case Msg.GenerateAvatar =>
+        val style = Style.fromString(model.style).getOrElse(Style.Monster)
+        val symmetry = Symmetry.fromString(model.symmetry).getOrElse(Symmetry.Vertical)
+        val config = AvatarConfig(model.name, style, symmetry)
+        val svg = AvatarGenerator.generateAvatar(config)
+        (model.copy(avatarSvg = svg, avatarConfig = config), Cmd.None)
+
+      case Msg.NoOp =>
+        (model, Cmd.None)
+
+  def view(model: Model): Html[Msg] =
+    div(
+      h1("PixelPersona - Генератор аватаров"),
+      div(
+        label("Имя: "),
+        input(
+          placeholder := "Введите имя",
+          onInput(name => Msg.NameChanged(name)),
+          value := model.name
+        )
+      ),
+      div(
+        label("Стиль: "),
+        select(
+          onChange(style => Msg.StyleChanged(style)),
+          value := model.style,
+          Option("Monster", "Monster"),
+          Option("Robot", "Robot"),
+          Option("Planet", "Planet")
+        )
+      ),
+      div(
+        label("Симметрия: "),
+        select(
+          onChange(symmetry => Msg.SymmetryChanged(symmetry)),
+          value := model.symmetry,
+          Option("Vertical", "Vertical"),
+          Option("Horizontal", "Horizontal"),
+          Option("Radial", "Radial"),
+          Option("Grid", "Grid")
+        )
+      ),
+      div(
+        label("Тема: "),
+        select(
+          onChange(theme => Msg.ThemeChanged(theme)),
+          value := model.theme,
+          Option("Retro", "Retro"),
+          Option("Cyberpunk", "Cyberpunk"),
+          Option("Nature", "Nature"),
+          Option("Braille", "Braille")
+        )
+      ),
+      button(onClick(Msg.GenerateAvatar))("Сгенерировать"),
+      div(
+        h2("Аватар:"),
+        raw(model.avatarSvg)
+      ),
+      div(
+        h2("ASCII-арт:"),
+        pre(model.asciiArt)
+      )
+    )
+
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.None
