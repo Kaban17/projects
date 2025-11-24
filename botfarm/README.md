@@ -185,8 +185,6 @@ Update `alembic.ini` `sqlalchemy.url` for prod.
 ## Additional (Implemented Bonus)
 - ✅ Async (asyncio/asyncpg)
 - ✅ Alembic migrations
-- 🔄 Auth (OAuth2-ready, add `app/routers/auth.py`)
 - ✅ Probes (`/health`)
-- 🔄 Minikube (k8s manifests in `/k8s/`)
 
 Questions? Check `/docs` or open an issue.
